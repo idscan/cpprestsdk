@@ -527,6 +527,7 @@ public:
 
     virtual pplx::task<http_response> propagate(http_request request) override
     {
+        std::cout << "oauth2" << std::endl;
         if (m_config)
         {
             m_config->_authenticate_request(request);

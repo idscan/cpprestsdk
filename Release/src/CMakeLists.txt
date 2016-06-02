@@ -113,6 +113,44 @@ else()
 endif()
 
 ###############################################################################
+# Sample service LIB 
+###############################################################################
+
+# Generate sample-service library
+# Set folder paths
+set(service_include_dir "${PROJECT_SOURCE_DIR}/include/document-sample-service" "${PROJECT_SOURCE_DIR}/include/cpprest" "${PROJECT_SOURCE_DIR}/include/pplx")
+	
+# Set source files list						 
+file (GLOB service_srcs sample-service/*.cpp sample-service/*.h ${PROJECT_SOURCE_DIR}/include/document-sample-service/*.h)
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    ADD_DEFINITIONS(-D_NO_ASYNCRTIMP)
+endif()
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    ADD_DEFINITIONS(--std=c++11)
+endif()
+
+# Define library
+add_executable(sample_service_lib ${service_srcs})
+
+# Add include directories
+target_include_directories(sample_service_lib PRIVATE ${service_include_dir})
+
+# Link with dependencies	
+target_link_libraries(sample_service_lib
+	${Casablanca_LIBRARY}
+    ${Boost_SYSTEM_LIBRARY}
+	Boost::filesystem
+    ${Boost_THREAD_LIBRARY}
+    ${Boost_ATOMIC_LIBRARY}
+    ${Boost_CHRONO_LIBRARY}
+    ${Boost_RANDOM_LIBRARY}
+    Boost::regex
+    ${GTEST_BOTH_LIBRARIES})
+
+###############################################################################
+
+###############################################################################
 # Installation settings
 ###############################################################################
 

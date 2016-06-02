@@ -428,6 +428,9 @@ public:
         // Enforce HTTP connection keep alive (even for the old HTTP/1.0 protocol).
         request_stream << "Connection: Keep-Alive" << CRLF << CRLF;
 
+        std::cout << "Request prepared:" << std::endl;
+        //std::cout << request_stream.rdbuf() << std::endl;
+
         // Start connection timeout timer.
         m_timer.start();
 
@@ -522,14 +525,17 @@ private:
         m_timer.reset();
         if (!ec)
         {
+            std::cout << "connected, write request" << std::endl;
             write_request();
         }
         else if (endpoints == tcp::resolver::iterator())
         {
+            std::cout << "handle_connect error code: " << ec.value() << " message: " << ec.message() << std::endl;
             report_error("Failed to connect to any resolved endpoint", ec, httpclient_errorcode_context::connect);
         }
         else
         {
+            std::cout << "Try to use another connection" << std::endl;
             // Replace the connection. This causes old connection object to go out of scope.
             auto client = std::static_pointer_cast<asio_client>(m_http_client);
             m_connection = client->m_pool.obtain();
@@ -543,10 +549,12 @@ private:
     {
         if (ec)
         {
+            std::cout << "handle_resolve error code: " << ec.value() << " message: " << ec.message() << std::endl;
             report_error("Error resolving address", ec, httpclient_errorcode_context::connect);
         }
         else
         {
+            std::cout << "resolved, try to cannect" << std::endl;
             m_timer.reset();
             auto endpoint = *endpoints;
             m_connection->async_connect(endpoint, boost::bind(&asio_context::handle_connect, shared_from_this(), boost::asio::placeholders::error, ++endpoints));
@@ -558,6 +566,7 @@ private:
         // Only perform handshake if a TLS connection and not being reused.
         if (m_connection->is_ssl() && !m_connection->is_reused())
         {
+            std::cout << "Its new connection, do handshake" << std::endl;
             const auto weakCtx = std::weak_ptr<asio_context>(shared_from_this());
             m_connection->async_handshake(boost::asio::ssl::stream_base::client,
                                           m_http_client->client_config(),
@@ -577,6 +586,7 @@ private:
         }
         else
         {
+            std::cout << "Reusing connection" << std::endl;
             m_connection->async_write(m_body_buf, boost::bind(&asio_context::handle_write_headers, shared_from_this(), boost::asio::placeholders::error));
         }
     }
@@ -585,10 +595,12 @@ private:
     {
         if (!ec)
         {
+            std::cout << "done, write headers" << std::endl;
             m_connection->async_write(m_body_buf, boost::bind(&asio_context::handle_write_headers, shared_from_this(), boost::asio::placeholders::error));
         }
         else
         {
+            std::cout << "handle_handshake error code: " << ec.value() << " message: " << ec.message() << std::endl;
             report_error("Error in SSL handshake", ec, httpclient_errorcode_context::handshake);
         }
     }
@@ -625,6 +637,7 @@ private:
     {
         if(ec)
         {
+            std::cout << "handle_write_headers error code: " << ec.value() << " message: " << ec.message() << std::endl;
             report_error("Failed to write request headers", ec, httpclient_errorcode_context::writeheader);
         }
         else
@@ -700,6 +713,7 @@ private:
 
     void handle_write_large_body(const boost::system::error_code& ec)
     {
+        std::cout << "Write body" << std::endl;
         if (ec || m_uploaded >= m_content_length)
         {
             // Reuse error handling.
@@ -766,10 +780,12 @@ private:
             }
 
             // Read until the end of entire headers
+            std::cout << "Read status line" << std::endl;
             m_connection->async_read_until(m_body_buf, CRLF + CRLF, boost::bind(&asio_context::handle_status_line, shared_from_this(), boost::asio::placeholders::error));
         }
         else
         {
+            std::cout << "handle_write_body error code: " << ec.value() << " message: " << ec.message() << std::endl;
             report_error("Failed to write request body", ec, httpclient_errorcode_context::writebody);
         }
     }
@@ -824,10 +840,13 @@ private:
 
                 auto client = std::static_pointer_cast<asio_client>(m_http_client);
                 // Resend the request using the new context.
+
+                std::cout << "Connection closed, resent request with new connection" << std::endl;
                 client->send_request(new_ctx);
             }
             else
             {
+                std::cout << "handle_status_line error code: " << ec.value() << " message: " << ec.message() << std::endl;
                 report_error("Failed to read HTTP status line", ec, httpclient_errorcode_context::readheader);
             }
         }
@@ -835,6 +854,7 @@ private:
 
     void read_headers()
     {
+        std::cout << "Read headers" << std::endl;
         auto needChunked = false;
         std::istream response_stream(&m_body_buf);
         response_stream.imbue(std::locale::classic());
@@ -896,6 +916,7 @@ private:
         {
             if (!needChunked)
             {
+                std::cout << "Read content" << std::endl;
                 async_read_until_buffersize(static_cast<size_t>(std::min(m_content_length, static_cast<uint64_t>(m_http_client->client_config().chunksize()))),
                                             boost::bind(&asio_context::handle_read_content, shared_from_this(), boost::asio::placeholders::error));
             }
@@ -1014,6 +1035,7 @@ private:
             }
             else
             {
+                std::cout << "handle_read_content error code: " << ec.value() << " message: " << ec.message() << std::endl;
                 report_error("Failed to read response body", ec, httpclient_errorcode_context::readbody);
                 return;
             }
@@ -1195,6 +1217,7 @@ void asio_client::send_request(const std::shared_ptr<request_context> &request_c
     {
         if (ctx->m_connection->is_ssl())
         {
+            std::cout << "Sent ssl request" << std::endl;
             client_config().invoke_nativehandle_options(ctx->m_connection->m_ssl_stream.get());
         }
         else 

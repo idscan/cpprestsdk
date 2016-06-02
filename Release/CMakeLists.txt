@@ -56,12 +56,16 @@ elseif(ANDROID)
   set(BUILD_SAMPLES OFF)
   option(BUILD_TESTS "Build tests." OFF)
 elseif(UNIX) # This includes OSX
-    add_definitions( -DBOOST_ALL_NO_LIB )
-  hunter_add_package(Boost COMPONENTS random system thread filesystem chrono atomic)
+  add_definitions( -DBOOST_ALL_NO_LIB )
+  hunter_add_package(Boost COMPONENTS random system filesystem thread chrono atomic regex)
+  find_package(Boost CONFIG REQUIRED random system filesystem thread chrono atomic regex)
   find_package(Threads REQUIRED)
   
   hunter_add_package(OpenSSL)
   find_package(OpenSSL REQUIRED)
+
+  hunter_add_package(GTest)
+  find_package(GTest REQUIRED)
 
   option(BUILD_SHARED_LIBS "Build shared Libraries." OFF)
   option(BUILD_TESTS "Build tests." OFF)

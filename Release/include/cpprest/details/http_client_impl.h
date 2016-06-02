@@ -117,7 +117,7 @@ public:
     void complete_request(utility::size64_t body_size)
     {
         m_response._get_impl()->_complete(body_size);
-
+        std::cout << "Compelted" << std::endl;
         finish();
     }
 
@@ -321,6 +321,7 @@ private:
             return;
         }
 
+        std::cout << "Client opened" << std::endl;
         send_request(request);
     }
 
