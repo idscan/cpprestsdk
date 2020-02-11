@@ -3,15 +3,26 @@ cmake_minimum_required(VERSION 3.9)
 if(POLICY CMP0042)
   cmake_policy(SET CMP0042 NEW) # use MACOSX_RPATH
 endif()
-if(UNIX)
-  project(cpprestsdk C CXX)
-else()
-  project(cpprestsdk CXX)
-endif()
 
 set(CPPREST_VERSION_MAJOR 2)
 set(CPPREST_VERSION_MINOR 10)
 set(CPPREST_VERSION_REVISION 16)
+
+// Note idscan version - this is still "casablanca" instead of "cpprestsdk" as upstream now is
+set(CPPREST_PROJECT casablanca)
+set(CPPREST_VERSION ${CPPREST_VERSION_MAJOR}.${CPPREST_VERSION_MINOR}.${CPPREST_VERSION_REVISION})
+
+include("cmake/HunterGate.cmake")
+HunterGate(
+    URL "http://192.168.2.27/packages/hunter/hunter-project-v1.0.60.tar.gz"
+    SHA1 "e1a3b70805d481652b53737e4920b4dd712ad067"
+)
+
+if(UNIX)
+  project(${CPPREST_PROJECT} C CXX VERSION ${CPPREST_VERSION})
+else()
+  project(${CPPREST_PROJECT} CXX VERSION ${CPPREST_VERSION})
+endif()
 
 enable_testing()
 
@@ -26,15 +37,15 @@ set(CPPREST_INSTALL ON CACHE BOOL "Add install commands.")
 if(IOS OR ANDROID)
   set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries")
 else()
-  set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries")
+  set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries")
 endif()
 
 if(IOS OR ANDROID OR WINDOWS_STORE OR WINDOWS_PHONE)
   set(BUILD_TESTS OFF CACHE BOOL "Build tests.")
   set(BUILD_SAMPLES OFF CACHE BOOL "Build sample applications.")
 else()
-  set(BUILD_TESTS ON CACHE BOOL "Build tests.")
-  set(BUILD_SAMPLES ON CACHE BOOL "Build sample applications.")
+  set(BUILD_TESTS OFF CACHE BOOL "Build tests.")
+  set(BUILD_SAMPLES OFF CACHE BOOL "Build sample applications.")
 endif()
 
 if(WIN32)
@@ -56,7 +67,7 @@ endif()
 if(ANDROID)
   set(Boost_USE_STATIC_LIBS ON CACHE BOOL "Link against boost statically.")
 else()
-  set(Boost_USE_STATIC_LIBS OFF CACHE BOOL "Link against boost statically.")
+  set(Boost_USE_STATIC_LIBS ON CACHE BOOL "Link against boost statically.")
 endif()
 
 include(cmake/cpprest_find_boost.cmake)

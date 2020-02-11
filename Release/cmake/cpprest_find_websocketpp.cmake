@@ -3,7 +3,13 @@ function(cpprest_find_websocketpp)
     return()
   endif()
 
+  if (HUNTER_ENABLED)
+    # Note: it is websocketpp not WEBSOCKETPP on hunter
+    hunter_add_package(websocketpp)
+    find_package(websocketpp CONFIG)
+  else (HUNTER_ENABLED)
   find_package(WEBSOCKETPP CONFIG QUIET)
+  endif (HUNTER_ENABLED)
   if(WEBSOCKETPP_FOUND)
     message("-- Found websocketpp version " ${WEBSOCKETPP_VERSION} " on system")
     set(WEBSOCKETPP_INCLUDE_DIR ${WEBSOCKETPP_INCLUDE_DIR} CACHE INTERNAL "")
