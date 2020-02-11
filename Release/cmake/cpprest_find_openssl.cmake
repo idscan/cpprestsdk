@@ -5,7 +5,7 @@ function(cpprest_find_openssl)
 
   if (HUNTER_ENABLED)
     hunter_add_package(OpenSSL)
-    find_package(OpenSSL CONFIG REQUIRED)
+    find_package(OpenSSL REQUIRED)
 
     INCLUDE(CheckCXXSourceCompiles)
     set(CMAKE_REQUIRED_INCLUDES "${OPENSSL_INCLUDE_DIR}")
