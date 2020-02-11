@@ -8,7 +8,7 @@ set(CPPREST_VERSION_MAJOR 2)
 set(CPPREST_VERSION_MINOR 10)
 set(CPPREST_VERSION_REVISION 16)
 
-// Note idscan version - this is still "casablanca" instead of "cpprestsdk" as upstream now is
+# Note idscan version - this is still "casablanca" instead of "cpprestsdk" as upstream now is
 set(CPPREST_PROJECT casablanca)
 set(CPPREST_VERSION ${CPPREST_VERSION_MAJOR}.${CPPREST_VERSION_MINOR}.${CPPREST_VERSION_REVISION})
 
