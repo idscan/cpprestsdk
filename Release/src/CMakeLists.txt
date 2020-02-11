@@ -283,7 +283,7 @@ if(CPPREST_INSTALL)
   configure_file(../cmake/cpprestsdk-config.in.cmake "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake" @ONLY)
 
   install(
-    FILES "${CMAKE_CURRENT_BINARY_DIR}/cpprestsdk-config.cmake"
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake"
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/${CPPREST_EXPORT_DIR}
   )
 
