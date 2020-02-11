@@ -8,8 +8,10 @@ set(CPPREST_VERSION_MAJOR 2)
 set(CPPREST_VERSION_MINOR 10)
 set(CPPREST_VERSION_REVISION 16)
 
-# Note idscan version - this is still "casablanca" instead of "cpprestsdk" as upstream now is
-set(CPPREST_PROJECT casablanca)
+# Note idscan version - allow override to still use "casablanca" instead of "cpprestsdk" as upstream has changed to
+if(NOT CPPREST_PROJECT)
+  set(CPPREST_PROJECT cpprestsdk)
+endif()
 set(CPPREST_VERSION ${CPPREST_VERSION_MAJOR}.${CPPREST_VERSION_MINOR}.${CPPREST_VERSION_REVISION})
 
 include("cmake/HunterGate.cmake")
