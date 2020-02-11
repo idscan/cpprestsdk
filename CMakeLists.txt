@@ -7,6 +7,6 @@ HunterGate(
 )
 
 
-project(casablanca-root NONE)
+project(cpprestsdk-root NONE)
 enable_testing()
 add_subdirectory(Release)
