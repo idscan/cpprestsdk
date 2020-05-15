@@ -23,6 +23,12 @@ function(cpprest_find_boost)
     return()
   endif()
 
+  if (HUNTER_ENABLED)
+    # simplify: pull in max boost components we require
+    add_definitions( -DBOOST_ALL_NO_LIB )
+    hunter_add_package(Boost COMPONENTS random system thread filesystem chrono atomic date_time regex)
+    find_package(Boost CONFIG REQUIRED random system thread filesystem chrono atomic date_time regex)
+  else (HUNTER_ENABLED)
   if(IOS)
     if (EXISTS "${PROJECT_SOURCE_DIR}/../Build_iOS/boost")
       set(IOS_SOURCE_DIR "${PROJECT_SOURCE_DIR}/../Build_iOS")
@@ -50,6 +56,7 @@ function(cpprest_find_boost)
   else()
     find_package(Boost REQUIRED COMPONENTS system date_time regex)
   endif()
+  endif (HUNTER_ENABLED)
 
   add_library(cpprestsdk_boost_internal INTERFACE)
   # FindBoost continually breaks imported targets whenever boost updates.
