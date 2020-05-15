@@ -3,6 +3,21 @@ function(cpprest_find_openssl)
     return()
   endif()
 
+  if (HUNTER_ENABLED)
+    hunter_add_package(OpenSSL)
+    find_package(OpenSSL REQUIRED)
+
+    INCLUDE(CheckCXXSourceCompiles)
+    set(CMAKE_REQUIRED_INCLUDES "${OPENSSL_INCLUDE_DIR}")
+    set(CMAKE_REQUIRED_LIBRARIES "${OPENSSL_LIBRARIES}")
+    CHECK_CXX_SOURCE_COMPILES("
+      #include <openssl/ssl.h>
+      int main()
+      {
+      ::SSL_COMP_free_compression_methods();
+      }
+    " _SSL_LEAK_SUPPRESS_AVAILABLE)
+  else (HUNTER_ENABLED)
   if(IOS)
     set(IOS_SOURCE_DIR "${PROJECT_SOURCE_DIR}/../Build_iOS")
 
@@ -64,6 +79,7 @@ function(cpprest_find_openssl)
       }
     " _SSL_LEAK_SUPPRESS_AVAILABLE)
   endif()
+  endif (HUNTER_ENABLED)
 
   add_library(cpprestsdk_openssl_internal INTERFACE)
   if(TARGET OpenSSL::SSL)
