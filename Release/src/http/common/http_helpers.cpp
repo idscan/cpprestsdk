@@ -88,7 +88,8 @@ size_t chunked_encoding::add_chunked_delimiters(_Out_writes_(buffer_size) uint8_
 #ifdef _WIN32
         sprintf_s(buffer, sizeof(buffer), "%8IX", bytes_read);
 #else
-        snprintf(buffer, sizeof(buffer), "%8zX", bytes_read);
+        // JF 23/4/22, cherry pick change from unmerged PR microsoft/cpprestsdk#1462
+        snprintf(buffer, sizeof(buffer), "%8X", static_cast<std::uint32_t>(bytes_read));
 #endif
         memcpy(&data[0], buffer, 8);
         while (data[offset] == ' ')
